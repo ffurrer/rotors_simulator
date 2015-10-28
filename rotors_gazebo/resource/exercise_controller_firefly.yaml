@@ -1,0 +1,14 @@
+# Exercise controller parameters
+k_p_roll: 90
+k_d_roll: 22
+k_p_pitch: 80
+k_d_pitch: 18
+k_p_yaw: 2
+k_d_yaw: 0.8
+
+k_position_x: 10
+k_position_y: 10
+k_position_z: 10
+k_velocity_x: 4
+k_velocity_y: 4
+k_velocity_z: 4

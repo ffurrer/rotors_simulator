@@ -116,6 +116,15 @@ inline void skewMatrixFromVector(Eigen::Vector3d& vector, Eigen::Matrix3d* skew_
 inline void vectorFromSkewMatrix(Eigen::Matrix3d& skew_matrix, Eigen::Vector3d* vector) {
   *vector << skew_matrix(2, 1), skew_matrix(0,2), skew_matrix(1, 0);
 }
+
+inline void quat2rpy(const Eigen::Quaternion<double> &q, Eigen::Vector3d* rpy)
+{
+  assert(rpy);
+
+  *rpy << atan2(2.0 * (q.w() * q.x() + q.y() * q.z()), 1.0 - 2.0 * (q.x() * q.x() + q.y() * q.y())), asin(
+      2.0 * (q.w() * q.y() - q.z() * q.x())), atan2(2.0 * (q.w() * q.z() + q.x() * q.y()),
+                                                    1.0 - 2.0 * (q.y() * q.y() + q.z() * q.z()));
+}
 }
 
 #endif /* INCLUDE_ROTORS_CONTROL_COMMON_H_ */
