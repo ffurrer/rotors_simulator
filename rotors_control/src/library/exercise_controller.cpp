@@ -31,6 +31,8 @@ ExerciseController::ExerciseController()
 ExerciseController::~ExerciseController() {}
 
 void ExerciseController::InitializeParameters() {
+  //////////////////////////////////////////////////////////////////////////////
+  // Exercise 4
   // TODO(instsructions): Calculate the allocation matrix here and assign it to
   //       controller_parameters_.allocation_matrix_.
   //       First make sure your matrix has the proper size, you can do so by:
@@ -44,16 +46,6 @@ void ExerciseController::InitializeParameters() {
   // TODO(write code)
   //controller_parameters_.allocation_matrix_->resize(rows, columns);
   //controller_parameters_.allocation_matrix_ << ... ;
-  controller_parameters_.allocation_matrix_.resize(4, 6);
-  const double s = sin(M_PI/6);
-  const double c = cos(M_PI/6);
-  double b = 8.5486e-6;
-  double d = 0.136e-6;
-  double l = 0.215;
-  controller_parameters_.allocation_matrix_ << b, b, b, b, b, b,
-                                               s*l*b, 1*l*b, s*l*b, -s*l*b, -1*l*b, -s*l*b,
-                                               -c*l*b, 0, c*l*b, c*l*b, 0, -c*l*b,
-                                               -1*d, 1*d, -1*d, 1*d, -1*d, 1*d;
 
   // We initilize the inertia matrix I here.
   controller_parameters_.inertia_.setZero();
@@ -64,13 +56,8 @@ void ExerciseController::InitializeParameters() {
   // // Calculate the pseude-inverse A^{ \dagger} and then multiply by the inertia matrix I.
   // // A^{ \dagger} = A^T*(A*A^T)^{-1}
   // TODO(code)
-  //controller_parameters_.pinverse_allocation_matrix_.resize(...);
+  // controller_parameters_.pinverse_allocation_matrix_.resize(...);
   // controller_parameters_.pinverse_allocation_matrix_ = ...;
-
-  controller_parameters_.pinverse_allocation_matrix_.resize(vehicle_parameters_.rotor_configuration_.rotors.size(), 4);
-  controller_parameters_.pinverse_allocation_matrix_ = controller_parameters_.allocation_matrix_.transpose()
-      * (controller_parameters_.allocation_matrix_
-      * controller_parameters_.allocation_matrix_.transpose()).inverse();
 
   initialized_params_ = true;
 }
@@ -85,90 +72,91 @@ void ExerciseController::CalculateRotorVelocities(Eigen::VectorXd* rotor_velocit
     *rotor_velocities = Eigen::VectorXd::Zero(rotor_velocities->rows());
     return;
   }
-
+  //////////////////////////////////////////////////////////////////////////////
+  // Exercise 4
   Eigen::Vector3d roll_pitch_yaw;
+  // Get the roll-pitch-yaw angles from a quaternion and assign them to roll_pitch_yaw.
   quat2rpy(odometry_.orientation, &roll_pitch_yaw);
 
-  // TODO (code): Replace the assignment below with your calculated rotor
-  //              velocities.
+  // TODO (code): Follow the comments.
   double position_error_z, velocity_error_z, rotation_error_roll, rotation_error_pitch, rotation_error_yaw, omega_error_roll, omega_error_pitch, omega_error_yaw;
 
-  position_error_z = command_trajectory_.position_W.z() - odometry_.position.z();
-  velocity_error_z = - odometry_.velocity.z();
+  // Calculate the position and velocity errors in z-direction
+  position_error_z = ...
+  velocity_error_z = ...
   // Convert body-frame angular rates to Euler angular rates. (T_E_B * \omega)
   Eigen::Matrix3d T_E_B;
-  T_E_B << 1, sin(roll_pitch_yaw.x())*tan(roll_pitch_yaw.y()), cos(roll_pitch_yaw.x())*tan(roll_pitch_yaw.y()),
-           0, cos(roll_pitch_yaw.x()),                         -sin(roll_pitch_yaw.x()),
-           0, sin(roll_pitch_yaw.x())/cos(roll_pitch_yaw.y()), cos(roll_pitch_yaw.x())/cos(roll_pitch_yaw.y());
-  Eigen::Vector3d roll_pitch_yaw_derivatives = T_E_B * odometry_.angular_velocity;
+  T_E_B << ...
+  Eigen::Vector3d roll_pitch_yaw_derivatives = ...
 
-  rotation_error_roll = roll_pitch_yaw.x();
-  rotation_error_pitch = roll_pitch_yaw.y();
-  rotation_error_yaw = roll_pitch_yaw.z();
-  omega_error_roll = roll_pitch_yaw_derivatives.x();
-  omega_error_pitch = roll_pitch_yaw_derivatives.y();
-  omega_error_yaw = roll_pitch_yaw_derivatives.z();
-  double u_1 = controller_parameters_.k_position_z_ * position_error_z + controller_parameters_.k_velocity_z_ * velocity_error_z + vehicle_parameters_.gravity_;
-  double u_2 = -controller_parameters_.k_p_roll_ * rotation_error_roll - controller_parameters_.k_d_roll_ * omega_error_roll;
-  double u_3 = -controller_parameters_.k_p_pitch_ * rotation_error_pitch - controller_parameters_.k_d_pitch_ * omega_error_pitch;
-  double u_4 = -controller_parameters_.k_p_yaw_ * rotation_error_yaw - controller_parameters_.k_d_yaw_ * omega_error_yaw;
+  // Calcualte the rotation errors in roll, pitch and yaw.
+  rotation_error_roll = ...
+  rotation_error_pitch = ...
+  rotation_error_yaw = ...
+  // Calculate the errors on omega.
+  omega_error_roll = ...
+  omega_error_pitch = ...
+  omega_error_yaw = ...
+
+  // Assign the values to the control inputs u_1, u_2, u_3, and u_4.
+  double u_1 = ...
+  double u_2 = ...
+  double u_3 = ...
+  double u_4 = ...
+
   Eigen::Vector4d u(u_1, u_2, u_3, u_4);
+  // Now calculate the actual rotor velocities.
+  *rotor_velocities = ...
 
-  *rotor_velocities = controller_parameters_.pinverse_allocation_matrix_ * controller_parameters_.inertia_ * u;
-  *rotor_velocities = rotor_velocities->cwiseMax(Eigen::VectorXd::Zero(rotor_velocities->rows()));
-  *rotor_velocities = rotor_velocities->cwiseSqrt();
-
-///////////////////////////////////////////////////////////////////////////////////////////
-  // results to exercise 5
+  //////////////////////////////////////////////////////////////////////////////
+  // Exercise 5
   // Get the desired rotation matrix.
   Eigen::Vector3d position_error;
-  position_error = odometry_.position - command_trajectory_.position_W;
 
   // Transform velocity to world frame.
-  const Eigen::Matrix3d R_W_I = odometry_.orientation.toRotationMatrix();
-  Eigen::Vector3d velocity_W =  R_W_I * odometry_.velocity;
+  const Eigen::Matrix3d R_W_I = ...
+  Eigen::Vector3d velocity_W =  ...
+
+  // Calculate the velocity error in the world frame.
   Eigen::Vector3d velocity_error;
-  velocity_error = velocity_W - command_trajectory_.velocity_W;
+  velocity_error = ...
   Eigen::Vector3d e_z(Eigen::Vector3d::UnitZ());
-  Eigen::Vector3d desired_acceleration_vector;
 
   Eigen::Vector3d k_position(controller_parameters_.k_position_x_, controller_parameters_.k_position_y_, controller_parameters_.k_position_z_);
   Eigen::Vector3d k_velocity(controller_parameters_.k_velocity_x_, controller_parameters_.k_velocity_y_, controller_parameters_.k_velocity_z_);
-  desired_acceleration_vector = -position_error.cwiseProduct(k_position)
-      - velocity_error.cwiseProduct(k_velocity) + vehicle_parameters_.gravity_ * e_z;
-  u_1 = desired_acceleration_vector.dot(R_W_I.inverse() * e_z);
 
-  Eigen::Vector3d b1_des;
+  Eigen::Vector3d desired_acceleration_vector;
+  desired_acceleration_vector = ...
+
+  // Calcualte u_1 and assign it.
+  u_1 = ...
+
+  Eigen::Vector3d b1_des, b2_des, b3_des;
   double yaw = command_trajectory_.getYaw();
-  b1_des << cos(yaw), sin(yaw), 0;
-
-  Eigen::Vector3d b3_des;
-  b3_des = desired_acceleration_vector / desired_acceleration_vector.norm();
-
-  Eigen::Vector3d b2_des;
-  b2_des = b3_des.cross(b1_des);
-  b2_des.normalize();
+  b1_des << ...
+  b3_des = ...
+  b2_des = ...
 
   Eigen::Matrix3d R_des;
-  R_des.col(0) = b2_des.cross(b3_des);
-  R_des.col(1) = b2_des;
-  R_des.col(2) = b3_des;
+  // Set the columns of R_des, you can use R_des.col(i) = ...
+  R_des.col(0) = ...
+  R_des.col(1) = ...
+  R_des.col(2) = ...
 
   // Angle error according to lee et al.
-  Eigen::Matrix3d angle_error_matrix = 0.5 * (R_des.transpose() * R_W_I - R_W_I.transpose() * R_des);
+  Eigen::Matrix3d angle_error_matrix = ...
   Eigen::Vector3d angle_error;
+  // Get a vector from your skew matrix.
   vectorFromSkewMatrix(angle_error_matrix, &angle_error);
+  // Calculate u_2, u_3, and u_4 (Hint: Calculate \omega \cross J\omega first).
   Eigen::Vector3d omega_cross_J_omega;
-  omega_cross_J_omega = odometry_.angular_velocity.cross(vehicle_parameters_.inertia_ * odometry_.angular_velocity);
-  u_2 = -controller_parameters_.k_p_roll_ * angle_error.x() - controller_parameters_.k_d_roll_ * odometry_.angular_velocity.x() + omega_cross_J_omega.x();
-  u_3 = -controller_parameters_.k_p_pitch_ * angle_error.y() - controller_parameters_.k_d_pitch_ * odometry_.angular_velocity.y()  + omega_cross_J_omega.y();
-  u_4 = -controller_parameters_.k_p_yaw_ * angle_error.z() - controller_parameters_.k_d_yaw_ * odometry_.angular_velocity.z()  + omega_cross_J_omega.z();
+  omega_cross_J_omega = ...
+  u_2 = ...
+  u_3 = ...
+  u_4 = ...
 
   Eigen::Vector4d u_tracking(u_1, u_2, u_3, u_4);
-
-  *rotor_velocities = controller_parameters_.pinverse_allocation_matrix_ * controller_parameters_.inertia_ * u_tracking;
-  *rotor_velocities = rotor_velocities->cwiseMax(Eigen::VectorXd::Zero(rotor_velocities->rows()));
-  *rotor_velocities = rotor_velocities->cwiseSqrt();
+  *rotor_velocities = ...
 }
 
 void ExerciseController::SetOdometry(const EigenOdometry& odometry) {
