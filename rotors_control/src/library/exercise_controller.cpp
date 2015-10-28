@@ -130,20 +130,20 @@ void ExerciseController::CalculateRotorVelocities(Eigen::VectorXd* rotor_velocit
   Eigen::Vector3d velocity_error;
   velocity_error = velocity_W - command_trajectory_.velocity_W;
   Eigen::Vector3d e_z(Eigen::Vector3d::UnitZ());
-  Eigen::Vector3d desired_thrust_vector;
+  Eigen::Vector3d desired_acceleration_vector;
 
   Eigen::Vector3d k_position(controller_parameters_.k_position_x_, controller_parameters_.k_position_y_, controller_parameters_.k_position_z_);
   Eigen::Vector3d k_velocity(controller_parameters_.k_velocity_x_, controller_parameters_.k_velocity_y_, controller_parameters_.k_velocity_z_);
-  desired_thrust_vector = -position_error.cwiseProduct(k_position)
+  desired_acceleration_vector = -position_error.cwiseProduct(k_position)
       - velocity_error.cwiseProduct(k_velocity) + vehicle_parameters_.gravity_ * e_z;
-  u_1 = desired_thrust_vector.dot(R_W_I.inverse() * e_z);
+  u_1 = desired_acceleration_vector.dot(R_W_I.inverse() * e_z);
 
   Eigen::Vector3d b1_des;
   double yaw = command_trajectory_.getYaw();
   b1_des << cos(yaw), sin(yaw), 0;
 
   Eigen::Vector3d b3_des;
-  b3_des = desired_thrust_vector / desired_thrust_vector.norm();
+  b3_des = desired_acceleration_vector / desired_acceleration_vector.norm();
 
   Eigen::Vector3d b2_des;
   b2_des = b3_des.cross(b1_des);
