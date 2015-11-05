@@ -36,7 +36,10 @@ Installation Instructions
 
  ```
  $ cd ~/catkin_ws/src
- $ git clone git@github.com:ethz-asl/rotors_simulator.git
+ $ git clone git@github.com:ffurrer/rotors_simulator.git
+ $ cd rotor_simulator
+ $ git checkout feature/robot_dynamics_exercises_instructions
+ $ cd ~/catkin_ws/src
  $ git clone git@github.com:ethz-asl/mav_comm.git
  ```
   > **Note** if you want to use `wstool` you can replace the above commands with
