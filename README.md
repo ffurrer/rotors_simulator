@@ -37,7 +37,7 @@ Installation Instructions
  ```
  $ cd ~/catkin_ws/src
  $ git clone git@github.com:ffurrer/rotors_simulator.git
- $ cd rotor_simulator
+ $ cd rotors_simulator
  $ git checkout feature/robot_dynamics_exercises_instructions
  $ cd ~/catkin_ws/src
  $ git clone git@github.com:ethz-asl/mav_comm.git
